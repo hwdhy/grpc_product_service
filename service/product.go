@@ -12,7 +12,7 @@ import (
 )
 
 var ProductPermission = map[string]int{
-	"/grpc_hwdhy.Product/Add": common.NotLogged,
+	"/grpc_hwdhy.Product/Add": common.Admin,
 }
 
 type Product struct {
@@ -20,7 +20,6 @@ type Product struct {
 }
 
 func (p *Product) Add(ctx context.Context, input *product_pb.ProductAddRequest) (*product_pb.ProductAddResponse, error) {
-
 	productData := models.Product{
 		Name:  input.Name,
 		Price: input.Price,

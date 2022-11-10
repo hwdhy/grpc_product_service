@@ -4,7 +4,7 @@ import (
 	"context"
 	"flag"
 	"fmt"
-	"github.com/grpc-ecosystem/grpc-gateway/runtime"
+	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 	"grpc_tools/common"
@@ -54,7 +54,6 @@ func main() {
 // 启动grpc服务
 func runGRPCServer(listen net.Listener) error {
 	db.InitConnectionPgsql() // 初始化数据库连接
-
 	//更新接口权限
 	e := common.InitAdapter([]map[string]int{
 		service.ProductPermission,
