@@ -1,0 +1,26 @@
+syntax = "proto3";
+
+option go_package = "../product_pb";
+
+package grpc_hwdhy;
+
+import "google/api/annotations.proto";
+
+service Product {
+  rpc Add (ProductAddRequest)  returns (ProductAddResponse) {
+    option (google.api.http) = {
+      post : "/v1/product/add"
+      body : "*"
+    };
+  }
+}
+
+message ProductAddRequest {
+  string name = 1;
+  uint64 price = 2;
+  string image = 3;
+}
+
+message ProductAddResponse {
+  string status = 1;
+}
