@@ -38,5 +38,6 @@ func InitConnectionPgsql() {
 func AutoMigrate() error {
 	return PgsqlDB.AutoMigrate(
 		&models.Product{},
+		&models.Category{},
 	)
 }

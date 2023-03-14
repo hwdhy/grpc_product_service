@@ -10,7 +10,7 @@ import (
 )
 
 func main() {
-	conn := etcd.ClientConn("productService")
+	conn := etcd.ClientConn("productService", 0, "")
 	if conn == nil {
 		logrus.Fatalf("get grpc client err")
 	}

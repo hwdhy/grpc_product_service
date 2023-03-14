@@ -10,15 +10,13 @@ import (
 	"grpc_tools/common"
 	"grpc_tools/etcd"
 	interceptorTool "grpc_tools/interceptor"
+	"grpc_tools/pb/category_pb"
 	"grpc_tools/pb/product_pb"
-	"grpc_tools/pb/user_pb"
-	"math/rand"
 	"net"
 	"net/http"
 	"product_service/db"
 	"product_service/service"
 	"strconv"
-	"time"
 )
 
 var (
@@ -31,7 +29,6 @@ var (
 
 func main() {
 	flag.Parse()
-	rand.Seed(time.Now().UnixNano())
 
 	grpcListen, err := net.Listen("tcp", fmt.Sprintf(":%d", *grpcPort))
 	if err != nil {
@@ -57,6 +54,7 @@ func runGRPCServer(listen net.Listener) error {
 	//更新接口权限
 	e := common.InitAdapter([]map[string]int{
 		service.ProductPermission,
+		service.CategoryPermission,
 	})
 
 	interceptor := interceptorTool.NewAuthInterceptor()
@@ -66,6 +64,7 @@ func runGRPCServer(listen net.Listener) error {
 
 	server := grpc.NewServer(serverOptions...)
 	product_pb.RegisterProductServer(server, &service.Product{})
+	category_pb.RegisterCategoryServer(server, &service.Category{})
 
 	etcdRegister, err := etcd.NewEtcdRegister()
 	if err != nil {
@@ -85,15 +84,19 @@ func runGRPCServer(listen net.Listener) error {
 
 // 启动rest服务
 func runRESTServer(listen net.Listener) error {
-	conn := etcd.ClientConn(serviceName)
+	conn := etcd.ClientConn(serviceName, 0, "")
 	if conn == nil {
 		logrus.Fatalf("get grpc client err")
 	}
 
 	mux := runtime.NewServeMux()
-	err := user_pb.RegisterUserHandler(context.Background(), mux, conn)
+	err := product_pb.RegisterProductHandler(context.Background(), mux, conn)
 	if err != nil {
-		logrus.Fatalf("register user handler err: %v", err)
+		logrus.Fatalf("register product handler err: %v", err)
+	}
+	err = category_pb.RegisterCategoryHandler(context.Background(), mux, conn)
+	if err != nil {
+		logrus.Fatalf("register category handler err: %v", err)
 	}
 
 	logrus.Printf("start REST server at %s", listen.Addr())
